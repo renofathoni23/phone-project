@@ -8,6 +8,7 @@ import {
   InMemoryCache,
   ApolloProvider,
 } from "@apollo/react-hooks";
+import { BrowserRouter } from "react-router-dom";
 
 const client = new ApolloClient({
   uri: "https://wpe-hiring.tokopedia.net/graphql",
@@ -20,9 +21,11 @@ const root = ReactDOM.createRoot(
 
 root.render(
   <React.StrictMode>
-    <ApolloProvider client={client}>
-      <App />
-    </ApolloProvider>
+    <BrowserRouter>
+      <ApolloProvider client={client}>
+        <App />
+      </ApolloProvider>
+    </BrowserRouter>
   </React.StrictMode>
 );
 

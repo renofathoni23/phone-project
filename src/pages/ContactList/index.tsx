@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useContacts } from "../../hooks/useContacts";
 import styled from "@emotion/styled";
-import { Link } from "react-router-dom";
 import Contact from "../../components/Contact";
+import { Link } from "react-router-dom";
 
 interface Phone {
   typeName: string;
@@ -123,7 +123,7 @@ const ListContact: React.FC = () => {
         <ContactPageTitle>Phonebook App</ContactPageTitle>
         <TextButtonWrapper>
           <TextContact>Contacts</TextContact>
-          <ButtonAddContact href="#">Add Contact</ButtonAddContact>
+          <ButtonAddContact href="/add">Add Contact</ButtonAddContact>
         </TextButtonWrapper>
         <SearchInput
           placeholder="Search Contact With Name..."
