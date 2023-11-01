@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "@emotion/styled";
 import { useDelete } from "../../hooks/useDelete";
+import { Link } from "react-router-dom";
 
 interface Props {
   id: number;
@@ -14,7 +15,7 @@ interface Phone {
   number: number;
 }
 
-const ContainerContact = styled.div`
+const ContainerContact = styled(Link)`
   width: 100%;
   height: 70px;
   display: flex;
@@ -22,6 +23,8 @@ const ContainerContact = styled.div`
   background-color: #fff;
   margin-bottom: 5px;
   overflow-x: scroll;
+  text-decoration: none;
+  color: #000;
 `;
 
 const ContactInfoWrapper = styled.div`
@@ -66,7 +69,7 @@ const ContactActionWrapper = styled.div`
 `;
 
 const ButtonDelete = styled.button`
-  background-color: red;
+  background-color: #ff0000;
   border: none;
   color: white;
   text-align: center;
@@ -84,7 +87,7 @@ const Contact: React.FC<Props> = (props) => {
     deleteContact(id);
   };
   return (
-    <ContainerContact>
+    <ContainerContact to={`/contact/${id}`}>
       <ContactInfoWrapper>
         <ContactName>
           {firstName} {lastName}

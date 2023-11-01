@@ -1,9 +1,8 @@
-import React from "react";
-import logo from "./logo.svg";
 import "./App.css";
 import ListContact from "./pages/ContactList";
-import { Routes, Route, useNavigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import AddContact from "./pages/AddContact";
+import EditContact from "./pages/EditContact";
 
 function App() {
   return (
@@ -11,6 +10,7 @@ function App() {
       <Routes>
         <Route path="/" element={<ListContact />}></Route>
         <Route path="/add" element={<AddContact />}></Route>
+        <Route path="/contact/:id" element={<EditContact />}></Route>
       </Routes>
     </div>
   );

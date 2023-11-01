@@ -49,7 +49,7 @@ const TextContact = styled.h2`
   width: 50%;
 `;
 
-const ButtonAddContact = styled.a`
+const ButtonAddContact = styled(Link)`
   display: inline-block;
   padding: 8px 12px;
   background-color: #4caf50;
@@ -123,7 +123,7 @@ const ListContact: React.FC = () => {
         <ContactPageTitle>Phonebook App</ContactPageTitle>
         <TextButtonWrapper>
           <TextContact>Contacts</TextContact>
-          <ButtonAddContact href="/add">Add Contact</ButtonAddContact>
+          <ButtonAddContact to="/add">Add Contact</ButtonAddContact>
         </TextButtonWrapper>
         <SearchInput
           placeholder="Search Contact With Name..."

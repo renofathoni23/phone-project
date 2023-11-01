@@ -2,6 +2,7 @@ import React, { ChangeEvent, useState, FormEvent } from "react";
 import styled from "@emotion/styled";
 import useAddContact from "../../hooks/useAddContact";
 import { useNavigate } from "react-router-dom";
+import { useContactByName } from "../../hooks/useContactByName";
 
 interface Phone {
   number: string;
@@ -49,16 +50,86 @@ const InputWrapper = styled.div`
   flex-direction: column;
 `;
 
+const InputFields = styled.input`
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+  width: 90%;
+  outline: none;
+  margin-bottom: 10px;
+`;
+
+const ButtonWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  column-gap: 10px;
+`;
+
+const ButtonAddPhoneNumber = styled.button`
+  display: inline-block;
+  padding: 5px 10px;
+  background-color: #24a0ed;
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+  border: none;
+  text-align: center;
+  font-size: 16px;
+  cursor: pointer;
+`;
+
+const ButtonDeletePhoneNumber = styled.button`
+  display: inline-block;
+  padding: 5px 10px;
+  background-color: #ff0000;
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+  border: none;
+  text-align: center;
+  font-size: 16px;
+  cursor: pointer;
+`;
+
+const ButtonSubmitWrapper = styled.div`
+  display: flex;
+  width: 100%;
+  justify-content: center;
+`;
+
+const ButtonSubmitForm = styled.button`
+  display: inline-block;
+  padding: 8px 12px;
+  background-color: #4caf50;
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+  border: none;
+  text-align: center;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 30px;
+`;
+
+const ErrorMessageName = styled.p`
+  color: #ff0000;
+  margin-top: 0px;
+`;
+
 const AddContact: React.FC = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState<FormData>(initialData);
+  const [errorMessage, setErrorMessage] = useState<String>("");
 
   const handleInputFirstName = (e: ChangeEvent<HTMLInputElement>) => {
+    setErrorMessage("");
     const { value } = e.target;
     setFormData({ ...formData, first_name: value });
   };
 
   const handleInputLastName = (e: ChangeEvent<HTMLInputElement>) => {
+    setErrorMessage("");
     const { value } = e.target;
     setFormData({ ...formData, last_name: value });
   };
@@ -77,19 +148,43 @@ const AddContact: React.FC = () => {
     setFormData({ ...formData, phones: [...formData.phones, { number: "" }] });
   };
 
+  const handleDeletePhone = () => {
+    formData.phones.pop();
+    setFormData({ ...formData, phones: [...formData.phones] });
+  };
+
   const addContactMutation = useAddContact();
+  const { data, error, loading } = useContactByName(
+    formData.first_name,
+    formData.last_name
+  );
 
   const handleFormSubmitAddContact = async (e: FormEvent) => {
     e.preventDefault();
     try {
-      const { data } = await addContactMutation({
-        variables: {
-          first_name: formData.first_name,
-          last_name: formData.last_name,
-          phones: formData.phones,
-        },
-      });
-      navigate("/");
+      const specialChars = /^[A-Za-z0-9 ]+$/;
+      let name = `${formData.first_name} ${formData.last_name}`;
+      if (name.trim() !== "") {
+        setErrorMessage("");
+        if (!specialChars.test(name)) {
+          setErrorMessage("*Nama tidak boleh mengandung karakter");
+        } else {
+          if (data.contact.length > 0) {
+            setErrorMessage("*Nama sudah dipakai");
+          } else {
+            const { data } = await addContactMutation({
+              variables: {
+                first_name: formData.first_name,
+                last_name: formData.last_name,
+                phones: formData.phones,
+              },
+            });
+            navigate("/");
+          }
+        }
+      } else {
+        setErrorMessage("Nama tidak boleh dikosongkan");
+      }
     } catch (error) {
       console.error("Error adding contact:", error);
     }
@@ -102,37 +197,49 @@ const AddContact: React.FC = () => {
         <form onSubmit={handleFormSubmitAddContact}>
           <TextInputTitle>Name</TextInputTitle>
           <InputWrapper>
-            <input
+            <InputFields
               type="text"
               name="first_name"
               value={formData.first_name}
               onChange={handleInputFirstName}
-              placeholder="Input First Name"
-            ></input>
-            <input
+              placeholder="First Name"
+              required
+            ></InputFields>
+            <InputFields
               type="text"
               name="last_name"
               value={formData.last_name}
               onChange={handleInputLastName}
-              placeholder="Input Last Name"
-            ></input>
+              placeholder="Last Name"
+            ></InputFields>
           </InputWrapper>
+          {errorMessage && <ErrorMessageName>{errorMessage}</ErrorMessageName>}
           <TextInputTitle>Phone Numbers</TextInputTitle>
           <InputWrapper>
             {formData.phones.map((phone, index) => (
-              <input
+              <InputFields
                 key={index}
                 type="text"
                 name="number"
+                placeholder="Phone Number"
                 value={phone.number}
                 onChange={(e) => handleInputPhone(e, index)}
-              ></input>
+                required
+              ></InputFields>
             ))}
           </InputWrapper>
-          <button type="button" onClick={handleAddPhone}>
-            Add Phone Number
-          </button>
-          <button>Submit</button>
+          <ButtonWrapper>
+            {" "}
+            <ButtonAddPhoneNumber type="button" onClick={handleAddPhone}>
+              Add Number
+            </ButtonAddPhoneNumber>
+            <ButtonDeletePhoneNumber type="button" onClick={handleDeletePhone}>
+              Delete Number
+            </ButtonDeletePhoneNumber>
+          </ButtonWrapper>
+          <ButtonSubmitWrapper>
+            <ButtonSubmitForm type="submit">Submit</ButtonSubmitForm>
+          </ButtonSubmitWrapper>
         </form>
       </ContentContainer>
     </AddContactContainer>
