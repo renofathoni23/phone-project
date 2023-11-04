@@ -159,6 +159,8 @@ const AddContact: React.FC = () => {
     formData.last_name
   );
 
+  console.log(data);
+
   const handleFormSubmitAddContact = async (e: FormEvent) => {
     e.preventDefault();
     try {

@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useContacts } from "../../hooks/useContacts";
 import styled from "@emotion/styled";
 import Contact from "../../components/Contact";
 import { Link } from "react-router-dom";
+import { useSearchContact } from "../../hooks/useSearchContact";
 
 interface Phone {
   typeName: string;
@@ -19,6 +20,10 @@ interface ContactType {
 const ContactContainer = styled.div`
   width: 100%;
   min-height: 100vh;
+  @media (min-width: 769px) {
+    display: flex;
+    justify-content: center;
+  }
 `;
 
 const ContentContainer = styled.div`
@@ -26,6 +31,9 @@ const ContentContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  @media (min-width: 768px) {
+    width: 50%;
+  }
 `;
 
 const ContactPageTitle = styled.h1`
@@ -51,7 +59,7 @@ const TextContact = styled.h2`
 
 const ButtonAddContact = styled(Link)`
   display: inline-block;
-  padding: 8px 12px;
+  padding: 8px;
   background-color: #4caf50;
   color: white;
   text-decoration: none;
@@ -60,6 +68,7 @@ const ButtonAddContact = styled(Link)`
   text-align: center;
   font-size: 16px;
   cursor: pointer;
+  text-align: center;
 `;
 
 const SearchInput = styled.input`
@@ -107,49 +116,157 @@ const PageInfoText = styled.p`
   color: #000;
   font-size: 16px;
 `;
+
+const SearchWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  column-gap: 10px;
+`;
+
+const TextWrapper = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
 const ListContact: React.FC = () => {
   const PAGE_SIZE = 10;
   const [page, setPage] = useState(0);
-  const { data, error, loading } = useContacts(PAGE_SIZE, page);
-  const [search, setSearch] = useState("");
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearch(event.target.value);
+  const [searchInput, setSearchInput] = useState("");
+  const [skipFetchAll, setSkipFetchAll] = useState(false);
+  const [favoriteContact, setFavoriteContact] = useState<ContactType[]>(() => {
+    const storedFavoriteData = localStorage.getItem("favorite-contact");
+    return storedFavoriteData ? JSON.parse(storedFavoriteData) : [];
+  });
+  const { data, error, loading } = useContacts(PAGE_SIZE, page, skipFetchAll);
+  const {
+    loading: searchLoading,
+    search: searchContact,
+    data: searchData,
+    error: searchError,
+  } = useSearchContact();
+
+  useEffect(() => {
+    localStorage.setItem("favorite-contact", JSON.stringify(favoriteContact));
+  }, [favoriteContact]);
+
+  useEffect(() => {
+    const debounceSearching = setTimeout(() => {
+      if (searchInput.trim()) {
+        setSkipFetchAll(true);
+        const name = searchInput.split(" ");
+        const firstName = name[0];
+        const lastName = name.slice(1).join(" ");
+        searchContact({
+          variables: {
+            where: {
+              first_name: { _ilike: `%${firstName.toLowerCase()}%` },
+              last_name: { _ilike: `%${lastName.toLowerCase()}%` },
+            },
+          },
+        });
+      } else {
+        setSkipFetchAll(false);
+      }
+    }, 500);
+
+    return () => clearTimeout(debounceSearching);
+  }, [searchInput, searchContact]);
+
+  const handleNextPage = () => {
+    setPage((prev) => prev + 1);
   };
 
-  console.log(data);
+  const handlePrevPage = () => {
+    setPage((prev) => prev - 1);
+  };
+
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const search = event.target.value;
+    setSearchInput(search);
+  };
+
+  const addToFavorite = (contact: ContactType) => {
+    const isContactExist = favoriteContact.find(
+      (favorite: ContactType) => favorite.id === contact.id
+    );
+    if (!isContactExist) {
+      setFavoriteContact([...favoriteContact, contact]);
+    }
+  };
+
+  const deleteFromFavorite = (id: number) => {
+    const filteredFavoriteContact = favoriteContact.filter(
+      (contact: ContactType) => contact.id !== id
+    );
+
+    setFavoriteContact(filteredFavoriteContact);
+  };
+
+  let displayedContacts = data || searchData;
+  let displayLoading = loading || searchLoading;
+  let displayError = error || searchError;
+
+  console.log(displayedContacts);
   return (
     <ContactContainer>
       <ContentContainer>
         <ContactPageTitle>Phonebook App</ContactPageTitle>
-        <TextButtonWrapper>
-          <TextContact>Contacts</TextContact>
-          <ButtonAddContact to="/add">Add Contact</ButtonAddContact>
-        </TextButtonWrapper>
-        <SearchInput
-          placeholder="Search Contact With Name..."
-          type="text"
-          onChange={handleSearchChange}
-        ></SearchInput>
-        {loading && <div>Loading...</div>}
-        {!loading &&
-          data.contact.map((contact: ContactType, index: number) => (
+        <SearchWrapper>
+          <SearchInput
+            placeholder="Search Contact With Name..."
+            type="text"
+            onChange={handleSearchChange}
+          ></SearchInput>
+        </SearchWrapper>
+        <TextWrapper>
+          <TextContact>Favorite Contact</TextContact>
+        </TextWrapper>
+        {favoriteContact.length > 0 ? (
+          favoriteContact?.map((contact) => (
             <Contact
               id={contact.id}
               key={contact.id}
               firstName={contact.first_name}
               lastName={contact.last_name}
               phones={contact.phones}
+              addToFavorite={addToFavorite}
+              isFavorite
+              deleteFromFavorite={deleteFromFavorite}
             ></Contact>
-          ))}
+          ))
+        ) : (
+          <div>No Favotire Contact</div>
+        )}
+        <TextWrapper>
+          <TextContact>List Contact</TextContact>
+          <ButtonAddContact to="/add">Add Contact</ButtonAddContact>
+        </TextWrapper>
+        {displayLoading && <div>Loading...</div>}
+        {!displayLoading &&
+          displayedContacts.contact.map(
+            (contact: ContactType, index: number) => (
+              <Contact
+                id={contact.id}
+                key={contact.id}
+                firstName={contact.first_name}
+                lastName={contact.last_name}
+                phones={contact.phones}
+                addToFavorite={addToFavorite}
+                deleteFromFavorite={deleteFromFavorite}
+              ></Contact>
+            )
+          )}
         <PaginationWrapper>
-          <ButtonPagination
-            onClick={() => setPage((prev) => prev - 1)}
-            disabled={page === 0}
-          >
+          <ButtonPagination onClick={handlePrevPage} disabled={page === 0}>
             Prev
           </ButtonPagination>
           <PageInfoText>Page {page + 1}</PageInfoText>
-          <ButtonPagination onClick={() => setPage((prev) => prev + 1)}>
+          <ButtonPagination
+            onClick={handleNextPage}
+            disabled={displayedContacts?.contact.length < 10}
+          >
             Next
           </ButtonPagination>
         </PaginationWrapper>

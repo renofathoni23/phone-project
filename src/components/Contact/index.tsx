@@ -2,20 +2,32 @@ import React from "react";
 import styled from "@emotion/styled";
 import { useDelete } from "../../hooks/useDelete";
 import { Link } from "react-router-dom";
-
-interface Props {
-  id: number;
-  firstName: string;
-  lastName: string;
-  phones: Phone[];
-}
+import DeleteIcon from "../../assets/delete.png";
+import FavoriteIcon from "../../assets/favorite.png";
 
 interface Phone {
   typeName: string;
   number: number;
 }
 
-const ContainerContact = styled(Link)`
+interface ContactType {
+  id: number;
+  first_name: string;
+  last_name: string;
+  phones: Phone[];
+}
+
+interface Props {
+  id: number;
+  firstName: string;
+  lastName: string;
+  phones: Phone[];
+  isFavorite?: true | null;
+  addToFavorite: (contact: ContactType) => void;
+  deleteFromFavorite: (id: number) => void;
+}
+
+const ContainerContact = styled.div`
   width: 100%;
   height: 70px;
   display: flex;
@@ -23,15 +35,17 @@ const ContainerContact = styled(Link)`
   background-color: #fff;
   margin-bottom: 5px;
   overflow-x: scroll;
-  text-decoration: none;
   color: #000;
 `;
 
-const ContactInfoWrapper = styled.div`
+const ContactInfoWrapper = styled(Link)`
   display: flex;
   flex-direction: column;
-  width: 70%;
+  width: 100%;
   padding: 0px 5px;
+  text-decoration: none;
+  color: #000;
+  z-index: 0;
 `;
 
 const ContactName = styled.p`
@@ -60,35 +74,61 @@ const PhoneNumberText = styled.p`
 `;
 
 const ContactActionWrapper = styled.div`
-  width: 30%;
   display: flex;
   flex-direction: row;
   column-gap: 5px;
   justify-content: flex-end;
-  padding: 0px 5px;
 `;
 
 const ButtonDelete = styled.button`
-  background-color: #ff0000;
   border: none;
-  color: white;
+  color: #fff;
   text-align: center;
   text-decoration: none;
   display: inline-block;
   font-size: 10px;
-  margin: 10px 0px;
   cursor: pointer;
-  border-radius: 5px;
+  z-index: 1;
+  background-color: #c70000;
 `;
+
+const FavoriteButton = styled.button`
+  border: none;
+  color: #fff;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 10px;
+  cursor: pointer;
+  z-index: 1;
+  background-color: #ffa500;
+`;
+
 const Contact: React.FC<Props> = (props) => {
-  const { firstName, lastName, phones, id } = props;
+  const {
+    firstName,
+    lastName,
+    phones,
+    id,
+    isFavorite,
+    addToFavorite,
+    deleteFromFavorite,
+  } = props;
   const { deleteContact, data, error, loading } = useDelete();
   const handleContactDelete = () => {
     deleteContact(id);
   };
+
+  const handleAddFavorite = (contact: ContactType) => {
+    addToFavorite(contact);
+  };
+
+  const handleDeleteFromFavorite = (id: number) => {
+    deleteFromFavorite(id);
+  };
   return (
-    <ContainerContact to={`/contact/${id}`}>
-      <ContactInfoWrapper>
+    <ContainerContact>
+      <ContactInfoWrapper to={`/contact/${id}`}>
         <ContactName>
           {firstName} {lastName}
         </ContactName>
@@ -103,7 +143,38 @@ const Contact: React.FC<Props> = (props) => {
         </PhoneWrapper>
       </ContactInfoWrapper>
       <ContactActionWrapper>
-        <ButtonDelete onClick={handleContactDelete}>Delete</ButtonDelete>
+        <ButtonDelete
+          onClick={
+            isFavorite
+              ? () => handleDeleteFromFavorite(id)
+              : handleContactDelete
+          }
+        >
+          {" "}
+          <img
+            src={DeleteIcon}
+            style={{ width: "30px" }}
+            alt="delete-icon"
+          ></img>
+        </ButtonDelete>
+        {!isFavorite && (
+          <FavoriteButton
+            onClick={() =>
+              handleAddFavorite({
+                id: id,
+                first_name: firstName,
+                last_name: lastName,
+                phones: phones,
+              })
+            }
+          >
+            <img
+              src={FavoriteIcon}
+              style={{ width: "30px" }}
+              alt="favorite-icon"
+            ></img>
+          </FavoriteButton>
+        )}
       </ContactActionWrapper>
     </ContainerContact>
   );

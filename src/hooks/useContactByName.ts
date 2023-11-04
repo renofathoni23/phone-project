@@ -3,13 +3,8 @@ import { gql, useQuery } from "@apollo/react-hooks";
 const GET_CONTACT_BY_NAME = gql`
   query GetContactList($where: contact_bool_exp) {
     contact(where: $where) {
-      created_at
       first_name
-      id
       last_name
-      phones {
-        number
-      }
     }
   }
 `;

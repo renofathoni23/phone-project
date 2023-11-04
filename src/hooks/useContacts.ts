@@ -26,12 +26,14 @@ const GET_CONTACT_LIST = gql`
   }
 `;
 
-export const useContacts = (limit: number, offset: number) => {
+export const useContacts = (limit: number, offset: number, skip: boolean) => {
   const { data, error, loading } = useQuery(GET_CONTACT_LIST, {
     variables: {
       limit: limit,
       offset: offset * limit,
     },
+    skip: skip,
+    fetchPolicy: "cache-and-network",
   });
 
   return { data, error, loading };
