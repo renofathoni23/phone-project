@@ -1,6 +1,7 @@
 # Phonebook Project
 
 Reno Fathoni
+
 Tech Stack: Typescript, React, Emotion, Apollo GraphQL
 
 Live: https://phone-project-green.vercel.app
