@@ -150,7 +150,10 @@ const TextWrapper = styled.div`
 
 const ListContact: React.FC = () => {
   const PAGE_SIZE = 10;
-  const [page, setPage] = useState(0);
+  const [page, setPage] = useState(() => {
+    const storedPage = sessionStorage.getItem("page");
+    return storedPage ? parseInt(storedPage) : 0;
+  });
   const [searchInput, setSearchInput] = useState("");
   const [skipFetchAll, setSkipFetchAll] = useState(false);
   const [favoriteContact, setFavoriteContact] = useState<ContactType[]>(() => {
@@ -168,6 +171,10 @@ const ListContact: React.FC = () => {
   useEffect(() => {
     localStorage.setItem("favorite-contact", JSON.stringify(favoriteContact));
   }, [favoriteContact]);
+
+  useEffect(() => {
+    sessionStorage.setItem("page", JSON.stringify(page));
+  }, [page]);
 
   useEffect(() => {
     const debounceSearching = setTimeout(() => {
