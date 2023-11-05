@@ -17,6 +17,7 @@ export const useContactByName = (first_name: String, last_name: String) => {
         last_name: { _like: last_name },
       },
     },
+    fetchPolicy: "network-only",
   });
   return { data, error, loading };
 };

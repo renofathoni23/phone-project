@@ -41,7 +41,8 @@ const ContainerContact = styled.div`
 const ContactInfoWrapper = styled(Link)`
   display: flex;
   flex-direction: column;
-  width: 100%;
+  width: calc(100% - 89px);
+  box-sizing: border-box;
   padding: 0px 5px;
   text-decoration: none;
   color: #000;
@@ -74,6 +75,7 @@ const PhoneNumberText = styled.p`
 `;
 
 const ContactActionWrapper = styled.div`
+  width: 89px;
   display: flex;
   flex-direction: row;
   column-gap: 5px;
@@ -90,6 +92,9 @@ const ButtonDelete = styled.button`
   cursor: pointer;
   z-index: 1;
   background-color: #c70000;
+  &:hover {
+    background-color: #24a0ed;
+  }
 `;
 
 const FavoriteButton = styled.button`
@@ -102,6 +107,9 @@ const FavoriteButton = styled.button`
   cursor: pointer;
   z-index: 1;
   background-color: #ffa500;
+  &:hover {
+    background-color: #24a0ed;
+  }
 `;
 
 const Contact: React.FC<Props> = (props) => {
@@ -143,20 +151,6 @@ const Contact: React.FC<Props> = (props) => {
         </PhoneWrapper>
       </ContactInfoWrapper>
       <ContactActionWrapper>
-        <ButtonDelete
-          onClick={
-            isFavorite
-              ? () => handleDeleteFromFavorite(id)
-              : handleContactDelete
-          }
-        >
-          {" "}
-          <img
-            src={DeleteIcon}
-            style={{ width: "30px" }}
-            alt="delete-icon"
-          ></img>
-        </ButtonDelete>
         {!isFavorite && (
           <FavoriteButton
             onClick={() =>
@@ -175,6 +169,20 @@ const Contact: React.FC<Props> = (props) => {
             ></img>
           </FavoriteButton>
         )}
+        <ButtonDelete
+          onClick={
+            isFavorite
+              ? () => handleDeleteFromFavorite(id)
+              : handleContactDelete
+          }
+        >
+          {" "}
+          <img
+            src={DeleteIcon}
+            style={{ width: "30px" }}
+            alt="delete-icon"
+          ></img>
+        </ButtonDelete>
       </ContactActionWrapper>
     </ContainerContact>
   );

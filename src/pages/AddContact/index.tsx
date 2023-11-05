@@ -1,8 +1,9 @@
 import React, { ChangeEvent, useState, FormEvent } from "react";
 import styled from "@emotion/styled";
-import useAddContact from "../../hooks/useAddContact";
-import { useNavigate } from "react-router-dom";
+import { useAddContact } from "../../hooks/useAddContact";
+import { Link, useNavigate } from "react-router-dom";
 import { useContactByName } from "../../hooks/useContactByName";
+import BackIcon from "../../assets/back.png";
 
 interface Phone {
   number: string;
@@ -23,12 +24,19 @@ const initialData: FormData = {
 const AddContactContainer = styled.div`
   width: 100%;
   min-height: 100vh;
+  @media (min-width: 768px) {
+    display: flex;
+    justify-content: center;
+  }
 `;
 
 const ContentContainer = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
+  @media (min-width: 768px) {
+    width: 50%;
+  }
 `;
 
 const AddContactPageTitle = styled.h1`
@@ -55,9 +63,12 @@ const InputFields = styled.input`
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 16px;
-  width: 90%;
+  width: 100%;
   outline: none;
   margin-bottom: 10px;
+  @media (min-width: 768px) {
+    width: 90%;
+  }
 `;
 
 const ButtonWrapper = styled.div`
@@ -117,6 +128,27 @@ const ErrorMessageName = styled.p`
   margin-top: 0px;
 `;
 
+const BackButtonWrapper = styled.a`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-decoration: none;
+  width: 30px;
+  height: 30px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  @media (min-width: 768px) {
+    top: 5px;
+    left: 10px;
+  }
+`;
+
+const BackIconImg = styled.img`
+  width: 24px;
+  height: 24px;
+`;
+
 const AddContact: React.FC = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState<FormData>(initialData);
@@ -154,10 +186,7 @@ const AddContact: React.FC = () => {
   };
 
   const addContactMutation = useAddContact();
-  const { data, error, loading } = useContactByName(
-    formData.first_name,
-    formData.last_name
-  );
+  const { data } = useContactByName(formData.first_name, formData.last_name);
 
   console.log(data);
 
@@ -174,7 +203,7 @@ const AddContact: React.FC = () => {
           if (data.contact.length > 0) {
             setErrorMessage("*Nama sudah dipakai");
           } else {
-            const { data } = await addContactMutation({
+            await addContactMutation({
               variables: {
                 first_name: formData.first_name,
                 last_name: formData.last_name,
@@ -194,6 +223,9 @@ const AddContact: React.FC = () => {
 
   return (
     <AddContactContainer>
+      <BackButtonWrapper as="a" href="/">
+        <BackIconImg src={BackIcon} alt="back-icon"></BackIconImg>
+      </BackButtonWrapper>
       <ContentContainer>
         <AddContactPageTitle>Add Contact</AddContactPageTitle>
         <form onSubmit={handleFormSubmitAddContact}>

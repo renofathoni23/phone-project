@@ -4,6 +4,7 @@ import styled from "@emotion/styled";
 import Contact from "../../components/Contact";
 import { Link } from "react-router-dom";
 import { useSearchContact } from "../../hooks/useSearchContact";
+import TokopediaIcon from "../../assets/Tokopedia-icon.png";
 
 interface Phone {
   typeName: string;
@@ -20,7 +21,7 @@ interface ContactType {
 const ContactContainer = styled.div`
   width: 100%;
   min-height: 100vh;
-  @media (min-width: 769px) {
+  @media (min-width: 768px) {
     display: flex;
     justify-content: center;
   }
@@ -36,11 +37,33 @@ const ContentContainer = styled.div`
   }
 `;
 
+const ContactPageTitleWrapper = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  column-gap: 10px;
+  margin-bottom: 10px;
+`;
+
+const Logo = styled.img`
+  width: 30px;
+  height: 30px;
+  @media (min-width: 769px) {
+    width: 45px;
+    height: 45px;
+  }
+`;
+
 const ContactPageTitle = styled.h1`
   font-size: 24px;
   color: #05aa5b;
   font-weight: 600;
   text-align: center;
+  @media (min-width: 769px) {
+    font-size: 30px;
+  }
 `;
 
 const TextButtonWrapper = styled.div`
@@ -69,6 +92,9 @@ const ButtonAddContact = styled(Link)`
   font-size: 16px;
   cursor: pointer;
   text-align: center;
+  &:hover {
+    background-color: #45a049;
+  }
 `;
 
 const SearchInput = styled.input`
@@ -212,7 +238,10 @@ const ListContact: React.FC = () => {
   return (
     <ContactContainer>
       <ContentContainer>
-        <ContactPageTitle>Phonebook App</ContactPageTitle>
+        <ContactPageTitleWrapper>
+          <Logo src={TokopediaIcon}></Logo>
+          <ContactPageTitle>Phonebook App</ContactPageTitle>
+        </ContactPageTitleWrapper>
         <SearchWrapper>
           <SearchInput
             placeholder="Search Contact With Name..."
