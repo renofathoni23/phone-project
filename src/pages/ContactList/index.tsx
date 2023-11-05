@@ -66,14 +66,6 @@ const ContactPageTitle = styled.h1`
   }
 `;
 
-const TextButtonWrapper = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-around;
-`;
-
 const TextContact = styled.h2`
   font-size: 20px;
   font-weight: 600;
@@ -234,7 +226,6 @@ const ListContact: React.FC = () => {
   let displayLoading = loading || searchLoading;
   let displayError = error || searchError;
 
-  console.log(displayedContacts);
   return (
     <ContactContainer>
       <ContentContainer>
@@ -266,14 +257,14 @@ const ListContact: React.FC = () => {
             ></Contact>
           ))
         ) : (
-          <div>No Favotire Contact</div>
+          <div>There is no Favorite Contact</div>
         )}
         <TextWrapper>
           <TextContact>List Contact</TextContact>
           <ButtonAddContact to="/add">Add Contact</ButtonAddContact>
         </TextWrapper>
         {displayLoading && <div>Loading...</div>}
-        {!displayLoading &&
+        {!displayLoading && displayedContacts.contact.length > 0 ? (
           displayedContacts.contact.map(
             (contact: ContactType, index: number) => (
               <Contact
@@ -286,7 +277,10 @@ const ListContact: React.FC = () => {
                 deleteFromFavorite={deleteFromFavorite}
               ></Contact>
             )
-          )}
+          )
+        ) : (
+          <div>-</div>
+        )}
         <PaginationWrapper>
           <ButtonPagination onClick={handlePrevPage} disabled={page === 0}>
             Prev

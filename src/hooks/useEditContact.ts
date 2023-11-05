@@ -1,4 +1,3 @@
-import React from "react";
 import { useMutation, gql } from "@apollo/react-hooks";
 
 const EDIT_CONTACT = gql`
@@ -15,8 +14,10 @@ const EDIT_CONTACT = gql`
 `;
 
 export const useEditContact = () => {
-  const [editContactMutation, { data, error, loading }] =
-    useMutation(EDIT_CONTACT);
+  const [editContactMutation, { data, error, loading }] = useMutation(
+    EDIT_CONTACT,
+    { fetchPolicy: "network-only" }
+  );
 
-  return editContactMutation;
+  return { editContactMutation, data, error, loading };
 };

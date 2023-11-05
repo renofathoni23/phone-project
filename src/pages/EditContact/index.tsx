@@ -3,9 +3,11 @@ import { useGetContactDetail } from "../../hooks/useGetContactDetail";
 import { useContactByName } from "../../hooks/useContactByName";
 import { Params, useParams } from "react-router-dom";
 import { useEditContact } from "../../hooks/useEditContact";
-import styled from "@emotion/styled";
 import { useNavigate } from "react-router-dom";
+import styled from "@emotion/styled";
 import BackIcon from "../../assets/back.png";
+import EditNumberFields from "../../components/EditNumberFields";
+import { useDelete } from "../../hooks/useDelete";
 
 interface Phone {
   number: string;
@@ -30,9 +32,20 @@ const ContentContainer = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
+  padding: 0px 5px;
+  box-sizing: border-box;
   @media (min-width: 768px) {
     width: 50%;
+    padding: 0px;
   }
+`;
+
+const ContactNameWrapper = styled.div`
+  width: 95%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
 `;
 
 const EditContactPageTitle = styled.h1`
@@ -72,7 +85,7 @@ const ButtonSubmitWrapper = styled.div`
 
 const ButtonSubmitForm = styled.button`
   display: inline-block;
-  padding: 8px 12px;
+  padding: 4px 10px;
   background-color: #4caf50;
   color: white;
   text-decoration: none;
@@ -81,7 +94,7 @@ const ButtonSubmitForm = styled.button`
   text-align: center;
   font-size: 16px;
   cursor: pointer;
-  margin-top: 30px;
+  margin-top: 10px;
 `;
 
 const ErrorMessageName = styled.p`
@@ -109,13 +122,53 @@ const BackIconImg = styled.img`
   width: 24px;
   height: 24px;
 `;
+
+const EditButton = styled.button`
+  display: inline-block;
+  padding: 4px 8px;
+  background-color: #ffa500;
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+  border: none;
+  text-align: center;
+  font-size: 16px;
+  cursor: pointer;
+`;
+
+const CancelButtonName = styled.button`
+  display: inline-block;
+  padding: 4px 8px;
+  background-color: #ff0000;
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+  border: none;
+  text-align: center;
+  font-size: 16px;
+  cursor: pointer;
+`;
+
+const ButtonDeleteContact = styled.button`
+  width: 140px;
+  display: inline-block;
+  padding: 8px;
+  background-color: #ff0000;
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+  border: none;
+  text-align: center;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 10px;
+`;
+
 const EditContact: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams<Params>();
   const parseId = id ? parseInt(id) : 0;
-
-  const { data, error, loading } = useGetContactDetail(parseId);
-  // console.log(data);
+  const { data, loading } = useGetContactDetail(parseId);
   const contact = data?.contact_by_pk;
   const initialData: FormData = {
     first_name: "",
@@ -124,6 +177,7 @@ const EditContact: React.FC = () => {
   };
   const [formData, setFormData] = useState<FormData>(initialData);
   const [errorMessage, setErrorMessage] = useState("");
+  const [isNameEdited, setIsNameEdited] = useState(false);
 
   useEffect(() => {
     if (data && contact) {
@@ -144,13 +198,21 @@ const EditContact: React.FC = () => {
     setFormData({ ...formData, last_name: value });
   };
 
-  const editContactMutation = useEditContact();
+  const { editContactMutation } = useEditContact();
   const { data: dataContactByName } = useContactByName(
     formData.first_name,
     formData.last_name
   );
-
-  console.log(dataContactByName);
+  const { deleteContactMutation } = useDelete();
+  const handleContactDelete = async (e: FormEvent) => {
+    e.preventDefault();
+    try {
+      await deleteContactMutation({ variables: { id: parseId } });
+      navigate("/");
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const handleFormSubmitEditContact = async (e: FormEvent) => {
     e.preventDefault();
@@ -160,10 +222,10 @@ const EditContact: React.FC = () => {
       if (name.trim() !== "") {
         setErrorMessage("");
         if (!specialChars.test(name)) {
-          setErrorMessage("*Nama tidak boleh mengandung karakter");
+          setErrorMessage("*Name must not contain characters");
         } else {
           if (dataContactByName.contact.length > 0) {
-            setErrorMessage("*Nama sudah dipakai");
+            setErrorMessage("*Name is already in use");
           } else {
             await editContactMutation({
               variables: {
@@ -174,11 +236,11 @@ const EditContact: React.FC = () => {
                 },
               },
             });
-            navigate("/");
+            window.location.reload();
           }
         }
       } else {
-        setErrorMessage("Nama tidak boleh dikosongkan");
+        setErrorMessage("Nama cannot be left blank");
       }
     } catch (error) {
       console.error("Error while adding contact:", error);
@@ -195,9 +257,23 @@ const EditContact: React.FC = () => {
         <BackIconImg src={BackIcon} alt="back-icon"></BackIconImg>
       </BackButtonWrapper>
       <ContentContainer>
-        <EditContactPageTitle>Edit Contact</EditContactPageTitle>
+        <EditContactPageTitle>View Contact</EditContactPageTitle>
         <form onSubmit={handleFormSubmitEditContact}>
-          <TextInputTitle>Name</TextInputTitle>
+          <ContactNameWrapper>
+            <TextInputTitle>Name</TextInputTitle>
+            {isNameEdited ? (
+              <CancelButtonName
+                type="button"
+                onClick={() => setIsNameEdited(false)}
+              >
+                Cancel
+              </CancelButtonName>
+            ) : (
+              <EditButton type="button" onClick={() => setIsNameEdited(true)}>
+                Edit Name
+              </EditButton>
+            )}
+          </ContactNameWrapper>
           <InputWrapper>
             <InputFields
               type="text"
@@ -205,7 +281,7 @@ const EditContact: React.FC = () => {
               value={formData.first_name}
               onChange={handleInputFirstName}
               placeholder="First Name"
-              required
+              readOnly={!isNameEdited}
             ></InputFields>
             <InputFields
               type="text"
@@ -213,26 +289,29 @@ const EditContact: React.FC = () => {
               value={formData.last_name}
               onChange={handleInputLastName}
               placeholder="Last Name"
+              readOnly={!isNameEdited}
             ></InputFields>
           </InputWrapper>
           {errorMessage && <ErrorMessageName>{errorMessage}</ErrorMessageName>}
-          <TextInputTitle>Phone Numbers</TextInputTitle>
-          <InputWrapper>
-            {formData.phones.map((phone, index) => (
-              <InputFields
-                key={index}
-                type="text"
-                name="number"
-                placeholder="Phone Number"
-                value={phone.number}
-                disabled
-              ></InputFields>
-            ))}
-          </InputWrapper>
-          <ButtonSubmitWrapper>
-            <ButtonSubmitForm type="submit">Submit</ButtonSubmitForm>
-          </ButtonSubmitWrapper>
+          {isNameEdited && (
+            <ButtonSubmitWrapper>
+              <ButtonSubmitForm type="submit">Save</ButtonSubmitForm>
+            </ButtonSubmitWrapper>
+          )}
         </form>
+        <TextInputTitle>Phone Numbers</TextInputTitle>
+        <InputWrapper>
+          {formData.phones.map((phone, index) => (
+            <EditNumberFields
+              key={index}
+              idContact={parseId}
+              prevNumber={phone.number}
+            ></EditNumberFields>
+          ))}
+        </InputWrapper>
+        <ButtonDeleteContact type="button" onClick={handleContactDelete}>
+          Delete Contact
+        </ButtonDeleteContact>
       </ContentContainer>
     </EditContactContainer>
   );

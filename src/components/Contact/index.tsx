@@ -1,6 +1,5 @@
 import React from "react";
 import styled from "@emotion/styled";
-import { useDelete } from "../../hooks/useDelete";
 import { Link } from "react-router-dom";
 import DeleteIcon from "../../assets/delete.png";
 import FavoriteIcon from "../../assets/favorite.png";
@@ -47,6 +46,11 @@ const ContactInfoWrapper = styled(Link)`
   text-decoration: none;
   color: #000;
   z-index: 0;
+`;
+
+const ContactNameWrapper = styled.div`
+  display: flex;
+  overflow-x: auto;
 `;
 
 const ContactName = styled.p`
@@ -122,10 +126,6 @@ const Contact: React.FC<Props> = (props) => {
     addToFavorite,
     deleteFromFavorite,
   } = props;
-  const { deleteContact, data, error, loading } = useDelete();
-  const handleContactDelete = () => {
-    deleteContact(id);
-  };
 
   const handleAddFavorite = (contact: ContactType) => {
     addToFavorite(contact);
@@ -137,9 +137,11 @@ const Contact: React.FC<Props> = (props) => {
   return (
     <ContainerContact>
       <ContactInfoWrapper to={`/contact/${id}`}>
-        <ContactName>
-          {firstName} {lastName}
-        </ContactName>
+        <ContactNameWrapper>
+          <ContactName>
+            {firstName} {lastName}
+          </ContactName>
+        </ContactNameWrapper>
         <PhoneNumberText>Phone Number:</PhoneNumberText>
         <PhoneWrapper>
           {phones.map((phone: Phone, index: number) => (
@@ -151,7 +153,7 @@ const Contact: React.FC<Props> = (props) => {
         </PhoneWrapper>
       </ContactInfoWrapper>
       <ContactActionWrapper>
-        {!isFavorite && (
+        {!isFavorite ? (
           <FavoriteButton
             onClick={() =>
               handleAddFavorite({
@@ -168,21 +170,16 @@ const Contact: React.FC<Props> = (props) => {
               alt="favorite-icon"
             ></img>
           </FavoriteButton>
+        ) : (
+          <ButtonDelete onClick={() => handleDeleteFromFavorite(id)}>
+            {" "}
+            <img
+              src={DeleteIcon}
+              style={{ width: "30px" }}
+              alt="delete-icon"
+            ></img>
+          </ButtonDelete>
         )}
-        <ButtonDelete
-          onClick={
-            isFavorite
-              ? () => handleDeleteFromFavorite(id)
-              : handleContactDelete
-          }
-        >
-          {" "}
-          <img
-            src={DeleteIcon}
-            style={{ width: "30px" }}
-            alt="delete-icon"
-          ></img>
-        </ButtonDelete>
       </ContactActionWrapper>
     </ContainerContact>
   );

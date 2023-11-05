@@ -1,7 +1,7 @@
 import React, { ChangeEvent, useState, FormEvent } from "react";
 import styled from "@emotion/styled";
 import { useAddContact } from "../../hooks/useAddContact";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useContactByName } from "../../hooks/useContactByName";
 import BackIcon from "../../assets/back.png";
 
@@ -34,8 +34,11 @@ const ContentContainer = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
+  padding: 0px 5px;
+  box-sizing: border-box;
   @media (min-width: 768px) {
     width: 50%;
+    padding: 0px;
   }
 `;
 
@@ -63,12 +66,9 @@ const InputFields = styled.input`
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 16px;
-  width: 100%;
+  width: 90%;
   outline: none;
   margin-bottom: 10px;
-  @media (min-width: 768px) {
-    width: 90%;
-  }
 `;
 
 const ButtonWrapper = styled.div`
@@ -185,10 +185,8 @@ const AddContact: React.FC = () => {
     setFormData({ ...formData, phones: [...formData.phones] });
   };
 
-  const addContactMutation = useAddContact();
+  const { addContactMutation } = useAddContact();
   const { data } = useContactByName(formData.first_name, formData.last_name);
-
-  console.log(data);
 
   const handleFormSubmitAddContact = async (e: FormEvent) => {
     e.preventDefault();
@@ -198,10 +196,10 @@ const AddContact: React.FC = () => {
       if (name.trim() !== "") {
         setErrorMessage("");
         if (!specialChars.test(name)) {
-          setErrorMessage("*Nama tidak boleh mengandung karakter");
+          setErrorMessage("*Name must not contain characters");
         } else {
           if (data.contact.length > 0) {
-            setErrorMessage("*Nama sudah dipakai");
+            setErrorMessage("*Name is already in use");
           } else {
             await addContactMutation({
               variables: {
@@ -214,7 +212,7 @@ const AddContact: React.FC = () => {
           }
         }
       } else {
-        setErrorMessage("Nama tidak boleh dikosongkan");
+        setErrorMessage("Nama cannot be left blank");
       }
     } catch (error) {
       console.error("Error adding contact:", error);
@@ -253,7 +251,7 @@ const AddContact: React.FC = () => {
             {formData.phones.map((phone, index) => (
               <InputFields
                 key={index}
-                type="text"
+                type="number"
                 name="number"
                 placeholder="Phone Number"
                 value={phone.number}
@@ -267,7 +265,11 @@ const AddContact: React.FC = () => {
             <ButtonAddPhoneNumber type="button" onClick={handleAddPhone}>
               Add Number
             </ButtonAddPhoneNumber>
-            <ButtonDeletePhoneNumber type="button" onClick={handleDeletePhone}>
+            <ButtonDeletePhoneNumber
+              type="button"
+              onClick={handleDeletePhone}
+              disabled={formData.phones.length === 1}
+            >
               Delete Number
             </ButtonDeletePhoneNumber>
           </ButtonWrapper>

@@ -31,6 +31,7 @@ export const useContacts = (limit: number, offset: number, skip: boolean) => {
     variables: {
       limit: limit,
       offset: offset * limit,
+      order_by: [{ first_name: "asc" }],
     },
     skip: skip,
     fetchPolicy: "cache-and-network",

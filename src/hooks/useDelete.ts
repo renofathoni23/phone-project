@@ -11,19 +11,8 @@ const DELETE_CONTACT = gql`
 `;
 
 export const useDelete = () => {
-  const [deleteContactMutation, { data, error, loading }] = useMutation(
-    DELETE_CONTACT,
-    { refetchQueries: ["GetContactList"] }
-  );
+  const [deleteContactMutation, { data, error, loading }] =
+    useMutation(DELETE_CONTACT);
 
-  const deleteContact = async (id: number) => {
-    try {
-      const response = await deleteContactMutation({ variables: { id } });
-      console.log(response);
-    } catch {
-      console.error(error);
-    }
-  };
-
-  return { deleteContact, data, error, loading };
+  return { deleteContactMutation, data, error, loading };
 };

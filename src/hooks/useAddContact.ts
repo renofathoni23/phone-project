@@ -29,7 +29,5 @@ export const useAddContact = () => {
   const [addContactMutation, { data, error, loading }] =
     useMutation(ADD_CONTACT);
 
-  return addContactMutation;
+  return { addContactMutation, data, error, loading };
 };
-
-// export default useAddContact;
