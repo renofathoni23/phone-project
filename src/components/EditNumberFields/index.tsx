@@ -1,6 +1,7 @@
 import React, { useState, FormEvent, ChangeEvent, useEffect } from "react";
 import styled from "@emotion/styled";
 import { useEditNumber } from "../../hooks/useEditNumber";
+import { useNavigate } from "react-router-dom";
 
 interface Props {
   idContact: number;
@@ -71,6 +72,7 @@ const ErrorMessageName = styled.p`
 `;
 
 const EditNumberFields: React.FC<Props> = (props) => {
+  const navigate = useNavigate();
   const { idContact, prevNumber } = props;
   const [isEditNumber, setIsEditNumber] = useState(false);
   const [newNumber, setNewNumber] = useState("");
@@ -94,7 +96,7 @@ const EditNumberFields: React.FC<Props> = (props) => {
     e.preventDefault();
     const onlyNumber = /^[0-9]*$/;
     if (!onlyNumber.test(newNumber)) {
-      setErrorMessage("*Masukan angka saja");
+      setErrorMessage("*Enter number only");
     } else {
       try {
         await editNumberMutation({
@@ -106,9 +108,11 @@ const EditNumberFields: React.FC<Props> = (props) => {
             new_phone_number: newNumber,
           },
         });
-        window.location.reload();
+        navigate(0);
       } catch {
-        setErrorMessage("*Nomor sudah dipakai, silahakan masukan nomor lain");
+        setErrorMessage(
+          "*The number is already in use, please enter another number"
+        );
       }
     }
   };

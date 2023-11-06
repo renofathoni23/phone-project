@@ -236,7 +236,7 @@ const EditContact: React.FC = () => {
                 },
               },
             });
-            window.location.reload();
+            navigate(0);
           }
         }
       } else {
