@@ -1,6 +1,6 @@
 import { useMutation, gql } from "@apollo/react-hooks";
 
-const ADD_CONTACT = gql`
+export const ADD_CONTACT = gql`
   mutation AddContactWithPhones(
     $first_name: String!
     $last_name: String!

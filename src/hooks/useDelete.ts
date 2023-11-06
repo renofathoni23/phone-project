@@ -1,6 +1,6 @@
 import { useMutation, gql } from "@apollo/react-hooks";
 
-const DELETE_CONTACT = gql`
+export const DELETE_CONTACT = gql`
   mutation MyMutation($id: Int!) {
     delete_contact_by_pk(id: $id) {
       first_name

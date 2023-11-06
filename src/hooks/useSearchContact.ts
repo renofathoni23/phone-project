@@ -1,6 +1,6 @@
 import { gql, useLazyQuery } from "@apollo/react-hooks";
 
-const SEARCH_CONTACT = gql`
+export const SEARCH_CONTACT = gql`
   query SearchContact($where: contact_bool_exp) {
     contact(where: $where) {
       id

@@ -282,6 +282,7 @@ const EditContact: React.FC = () => {
               onChange={handleInputFirstName}
               placeholder="First Name"
               readOnly={!isNameEdited}
+              data-testid="input-first-name"
             ></InputFields>
             <InputFields
               type="text"

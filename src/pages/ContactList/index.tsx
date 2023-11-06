@@ -272,19 +272,17 @@ const ListContact: React.FC = () => {
         </TextWrapper>
         {displayLoading && <div>Loading...</div>}
         {!displayLoading && displayedContacts.contact.length > 0 ? (
-          displayedContacts.contact.map(
-            (contact: ContactType, index: number) => (
-              <Contact
-                id={contact.id}
-                key={contact.id}
-                firstName={contact.first_name}
-                lastName={contact.last_name}
-                phones={contact.phones}
-                addToFavorite={addToFavorite}
-                deleteFromFavorite={deleteFromFavorite}
-              ></Contact>
-            )
-          )
+          displayedContacts.contact.map((contact: ContactType) => (
+            <Contact
+              id={contact.id}
+              key={contact.id}
+              firstName={contact.first_name}
+              lastName={contact.last_name}
+              phones={contact.phones}
+              addToFavorite={addToFavorite}
+              deleteFromFavorite={deleteFromFavorite}
+            ></Contact>
+          ))
         ) : (
           <div>-</div>
         )}

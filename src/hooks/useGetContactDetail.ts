@@ -1,6 +1,6 @@
 import { gql, useQuery } from "@apollo/react-hooks";
 
-const GET_CONTACT_DETAIL = gql`
+export const GET_CONTACT_DETAIL = gql`
   query GetContactDetail($id: Int!) {
     contact_by_pk(id: $id) {
       last_name

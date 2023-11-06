@@ -1,6 +1,6 @@
 import { useMutation, gql } from "@apollo/react-hooks";
 
-const EDIT_NUMBER = gql`
+export const EDIT_NUMBER = gql`
   mutation EditPhoneNumber(
     $pk_columns: phone_pk_columns_input!
     $new_phone_number: String!

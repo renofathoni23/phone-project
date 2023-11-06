@@ -1,6 +1,6 @@
 import { gql, useQuery } from "@apollo/react-hooks";
 
-const GET_CONTACT_BY_NAME = gql`
+export const GET_CONTACT_BY_NAME = gql`
   query GetContactList($where: contact_bool_exp) {
     contact(where: $where) {
       first_name
